@@ -4,12 +4,13 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mongo = require('mongoskin');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
 var secret=require('./routes/secret');
-
-
+var db = mongo.db('mongodb://127.0.0.1:27017/admin', { native_parser: true });
+db.bind('homework7');
 
 var app = express();
 
@@ -25,6 +26,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(function(req,res,next){
+  req.db=db;
+  next();
+});
 
 app.use('/', index);
 app.use('/users', users);
@@ -49,5 +54,5 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 app.listen(8080);
-
+db.close();
 module.exports = app;
